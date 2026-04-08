@@ -1,8 +1,8 @@
-# API & Data Service Discovery — UK Supermarket Tech
+# Data Service Discovery
 
-A natural language search tool for discovering OpenAPI (REST) and AsyncAPI (Kafka) specs across UK Supermarket data services. Built for engineers and product teams who need to find the right API or Kafka topic without knowing exactly where to look.
+A natural language search tool for discovering OpenAPI (REST) and AsyncAPI (Kafka) specs across a data platform. Built for engineers and product teams who need to find the right API or Kafka topic without knowing exactly where to look.
 
-**[Open the tool](https://jdgyp.github.io/sainsburys-spec-discovery)**
+**[Open the tool](https://jdgyp.github.io/data-spec-discovery)**
 
 ## What it does
 
@@ -11,7 +11,7 @@ Type a question in plain English — the tool scores all loaded specs for releva
 **Example queries:**
 - `where can I find the price of apples?`
 - `real-time stock level changes`
-- `Loyalty points balance for a customer`
+- `loyalty points balance for a customer`
 - `order delivery status updates`
 - `nutritional information and allergens`
 
@@ -19,11 +19,11 @@ Type a question in plain English — the tool scores all loaded specs for releva
 
 | Type | Spec | Description |
 |------|------|-------------|
-| OpenAPI | Pricing API v2.1 | Retail, Loyalty, and promotional pricing by SKU |
+| OpenAPI | Pricing API v2.1 | Retail, loyalty, and promotional pricing by SKU |
 | OpenAPI | Product Catalogue API v3.0 | Product master data, nutrition, allergens, images |
 | OpenAPI | Inventory & Availability API v1.4 | Store and warehouse stock levels |
 | OpenAPI | Order Management API v4.0 | Order lifecycle, fulfilment, substitutions |
-| OpenAPI | Customer & Loyalty API v2.0 | Customer profiles and Loyalty points |
+| OpenAPI | Customer & Loyalty API v2.0 | Customer profiles and loyalty points |
 | AsyncAPI | price.updated v1.3 | Real-time Kafka topic for price change events |
 | AsyncAPI | stock.changed v2.0 | Stock level change events from EPOS and WMS |
 | AsyncAPI | order.lifecycle v3.1 | Order status transition events |
