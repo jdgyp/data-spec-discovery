@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API & Data Service Discovery — UK Supermarket Tech</title>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist/swagger-ui.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --orange: #f06c00;
+      --orange-dark: #c45600;
+      --orange-light: #fff3e8;
+      --bg: #f5f5f7;
+      --surface: #ffffff;
+      --border: #e2e2e6;
+      --text: #1a1a1a;
+      --muted: #6b6b80;
+      --radius: 12px;
+      --shadow: 0 2px 8px rgba(0,0,0,0.08);
+      --openapi-color: #2563eb;
+      --openapi-bg: #eff6ff;
+      --asyncapi-color: #7c3aed;
+      --asyncapi-bg: #f5f3ff;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ─────────────────────────────────────────────── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      height: 60px;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-mark {
+      width: 32px;
+      height: 32px;
+      background: var(--orange);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 900;
+      font-size: 18px;
+      letter-spacing: -1px;
+      font-style: italic;
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+
+    .logo-title { font-size: 14px; font-weight: 700; color: var(--text); }
+    .logo-sub { font-size: 11px; color: var(--muted); }
+
+    .header-divider { width: 1px; height: 28px; background: var(--border); }
+
+    .header-tag {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.3px;
+    }
+
+    /* ── Layout ─────────────────────────────────────────────── */
+    .app-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      height: calc(100vh - 60px);
+    }
+
+    .left-panel {
+      width: 420px;
+      min-width: 420px;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border);
+      background: var(--surface);
+      overflow: hidden;
+    }
+
+    .right-panel {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--bg);
+    }
+
+    /* ── Search ─────────────────────────────────────────────── */
+    .search-area {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .search-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .search-wrap {
+      position: relative;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 16px;
+      pointer-events: none;
+    }
+
+    #searchInput {
+      width: 100%;
+      padding: 11px 40px 11px 38px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+    #searchInput:focus { border-color: var(--orange); background: white; }
+    #searchInput::placeholder { color: #aaa; }
+
+    .clear-search {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #bbb;
+      cursor: pointer;
+      font-size: 18px;
+      display: none;
+      padding: 2px 4px;
+    }
+    .clear-search.visible { display: block; }
+    .clear-search:hover { color: var(--text); }
+
+    .example-queries {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .example-chip {
+      font-size: 12px;
+      color: var(--orange-dark);
+      background: var(--orange-light);
+      border: 1px solid #fcd9b0;
+      border-radius: 20px;
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .example-chip:hover { background: #ffe2c8; }
+
+    /* ── Filter bar ─────────────────────────────────────────── */
+    .filter-bar {
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .filter-label { font-size: 12px; color: var(--muted); margin-right: 2px; }
+
+    .filter-btn {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: white;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: var(--muted);
+    }
+    .filter-btn.active-all { border-color: var(--orange); color: var(--orange); background: var(--orange-light); }
+    .filter-btn.active-openapi { border-color: var(--openapi-color); color: var(--openapi-color); background: var(--openapi-bg); }
+    .filter-btn.active-asyncapi { border-color: var(--asyncapi-color); color: var(--asyncapi-color); background: var(--asyncapi-bg); }
+
+    /* ── Results ─────────────────────────────────────────────── */
+    .results-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+    }
+
+    .results-header {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 4px 4px 10px;
+      font-weight: 600;
+    }
+
+    .result-card {
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+      position: relative;
+    }
+    .result-card:hover { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(240,108,0,0.08); }
+    .result-card.active { border-color: var(--orange); background: var(--orange-light); box-shadow: 0 0 0 3px rgba(240,108,0,0.12); }
+
+    .result-card-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .type-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .badge-openapi { background: var(--openapi-bg); color: var(--openapi-color); }
+    .badge-asyncapi { background: var(--asyncapi-bg); color: var(--asyncapi-color); }
+
+    .result-title { font-size: 14px; font-weight: 700; line-height: 1.3; flex: 1; }
+    .result-version { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    .result-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .result-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+
+    .result-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+    .result-tag {
+      font-size: 11px;
+      color: var(--muted);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 7px;
+    }
+
+    .relevance {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--orange);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+    }
+    .empty-icon { font-size: 36px; margin-bottom: 10px; }
+    .empty-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+    .empty-sub { font-size: 13px; }
+
+    /* ── Spec Viewer ─────────────────────────────────────────── */
+    .spec-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--muted);
+      text-align: center;
+      padding: 40px;
+    }
+    .spec-placeholder-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+    .spec-placeholder-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .spec-placeholder-sub { font-size: 14px; line-height: 1.6; max-width: 320px; }
+
+    .spec-viewer-wrap { display: none; height: 100%; flex-direction: column; }
+    .spec-viewer-wrap.visible { display: flex; }
+
+    .spec-viewer-header {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .spec-viewer-title { font-size: 16px; font-weight: 700; flex: 1; }
+    .spec-viewer-version { font-size: 12px; color: var(--muted); }
+
+    .copy-btn {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: white;
+      cursor: pointer;
+      color: var(--text);
+      transition: all 0.15s;
+    }
+    .copy-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+    .spec-content { flex: 1; overflow-y: auto; }
+
+    /* ── Swagger UI overrides ─────────────────────────────────── */
+    #swagger-ui { padding: 0; }
+    .swagger-ui .topbar { display: none; }
+    .swagger-ui .info { margin: 20px 24px; }
+    .swagger-ui .scheme-container { padding: 10px 24px; }
+    .swagger-ui .wrapper { padding: 0 24px; }
+    .swagger-ui .opblock-tag { font-size: 14px; }
+
+    /* ── AsyncAPI Renderer ────────────────────────────────────── */
+    .asyncapi-view { padding: 24px; }
+
+    .asyncapi-info {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .asyncapi-info h2 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+    .asyncapi-info .version-line { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+    .asyncapi-info .desc { font-size: 14px; line-height: 1.7; color: #444; }
+    .asyncapi-info .contact { margin-top: 12px; font-size: 13px; color: var(--muted); }
+    .asyncapi-info .contact a { color: var(--orange); text-decoration: none; }
+
+    .asyncapi-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .channel-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .channel-header {
+      background: var(--asyncapi-bg);
+      border-bottom: 1px solid #ddd6fe;
+      padding: 12px 16px;
+    }
+
+    .channel-name {
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      color: var(--asyncapi-color);
+      word-break: break-all;
+    }
+
+    .channel-desc { font-size: 13px; color: #555; margin-top: 4px; }
+
+    .operation-block {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .operation-block:last-child { border-bottom: none; }
+
+    .operation-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 3px 10px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+    .op-subscribe { background: #f0fdf4; color: #15803d; }
+    .op-publish { background: #fff7ed; color: #c2640a; }
+
+    .operation-summary { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .operation-desc { font-size: 13px; color: #555; line-height: 1.6; margin-bottom: 10px; }
+
+    .op-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+    .op-tag {
+      font-size: 11px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 8px;
+      color: var(--muted);
+    }
+
+    .schema-block {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .schema-header {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .schema-table { width: 100%; border-collapse: collapse; }
+    .schema-table th {
+      background: var(--bg);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      padding: 8px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .schema-table td {
+      padding: 10px 16px;
+      font-size: 13px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .schema-table tr:last-child td { border-bottom: none; }
+
+    .field-name {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .field-type {
+      font-size: 11px;
+      font-family: monospace;
+      color: var(--asyncapi-color);
+      background: var(--asyncapi-bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .field-required { color: #dc2626; font-size: 11px; font-weight: 700; }
+    .field-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .field-enum { font-size: 11px; color: #555; font-family: monospace; margin-top: 4px; }
+
+    .kafka-bindings {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .kafka-header {
+      background: #f0f4ff;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #1d4ed8;
+    }
+    .kafka-body { padding: 14px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .kafka-item {}
+    .kafka-key { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px; }
+    .kafka-val { font-size: 13px; font-weight: 600; font-family: monospace; }
+
+    /* ── Loading ─────────────────────────────────────────────── */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      color: var(--muted);
+      font-size: 14px;
+      gap: 10px;
+    }
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid var(--border);
+      border-top-color: var(--orange);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">🛒</span>
+    <div class="logo-text">
+      <span class="logo-title">UK Supermarket Tech</span>
+      <span class="logo-sub">Data Service Discovery</span>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+  <span class="header-tag">API &amp; Kafka Topic Explorer</span>
+</header>
+
+<div class="app-body">
+
+  <!-- Left: Search + Results -->
+  <div class="left-panel">
+    <div class="search-area">
+      <div class="search-label">Ask in plain English</div>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input id="searchInput" placeholder="e.g. where can I find the price of apples?" autocomplete="off" />
+        <button class="clear-search" id="clearBtn" title="Clear">×</button>
+      </div>
+      <div class="example-queries">
+        <span class="example-chip" data-q="where can I find the price of apples?">price of apples</span>
+        <span class="example-chip" data-q="real-time stock level changes">stock level changes</span>
+        <span class="example-chip" data-q="Loyalty points balance for a customer">Loyalty points balance</span>
+        <span class="example-chip" data-q="nutritional information and allergens">nutritional info</span>
+        <span class="example-chip" data-q="order status and delivery updates">order delivery status</span>
+        <span class="example-chip" data-q="promotional and discount pricing">promotions</span>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <span class="filter-label">Show:</span>
+      <button class="filter-btn active-all" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="openapi">OpenAPI</button>
+      <button class="filter-btn" data-filter="asyncapi">AsyncAPI</button>
+    </div>
+
+    <div class="results-area" id="resultsArea">
+      <div class="empty-state">
+        <div class="empty-icon">💬</div>
+        <div class="empty-title">Search for a data service</div>
+        <div class="empty-sub">Describe what data you need in plain English — or try one of the examples above.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Spec Viewer -->
+  <div class="right-panel" id="rightPanel">
+    <div class="spec-placeholder" id="specPlaceholder">
+      <div class="spec-placeholder-icon">📋</div>
+      <div class="spec-placeholder-title">Select a spec to view</div>
+      <div class="spec-placeholder-sub">Search for a data service on the left, then click a result to view the full spec.</div>
+    </div>
+
+    <div class="spec-viewer-wrap" id="specViewerWrap">
+      <div class="spec-viewer-header">
+        <div>
+          <div class="spec-viewer-title" id="specTitle"></div>
+          <div class="spec-viewer-version" id="specVersion"></div>
+        </div>
+        <div id="specBadge"></div>
+        <button class="copy-btn" id="copySpecBtn">Copy JSON</button>
+      </div>
+      <div class="spec-content" id="specContent"></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="specs.js"></script>
+<script src="https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js"></script>
+<script>
+  // ── Search engine ───────────────────────────────────────────────────────────
+
+  const STOP_WORDS = new Set([
+    'where','can','i','find','the','of','a','an','is','are','how','do',
+    'what','which','get','show','me','for','to','in','on','at','with',
+    'and','or','from','my','our','its','their','this','that','give','want',
+    'need','use','using','have','has','been','be','by','about','any','all',
+  ]);
+
+  function tokenise(text) {
+    return (text || '').toLowerCase()
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .split(/\s+/)
+      .filter(w => w.length > 2 && !STOP_WORDS.has(w));
+  }
+
+  function buildIndex(spec) {
+    const idx = { title: [], description: [], paths: [], operations: [], tags: [], fields: [] };
+
+    const info = spec.data.info || {};
+    idx.title = tokenise(info.title);
+    idx.description = tokenise(info.description);
+
+    if (spec.type === 'openapi') {
+      Object.entries(spec.data.paths || {}).forEach(([path, pathObj]) => {
+        idx.paths.push(...tokenise(path));
+        Object.values(pathObj).forEach(op => {
+          if (typeof op !== 'object') return;
+          idx.operations.push(...tokenise(op.summary));
+          idx.operations.push(...tokenise(op.description));
+          (op.tags || []).forEach(t => idx.tags.push(...tokenise(t)));
+        });
+      });
+      (spec.data.tags || []).forEach(t => {
+        idx.tags.push(...tokenise(t.name));
+        idx.description.push(...tokenise(t.description));
+      });
+      Object.values(spec.data.components?.schemas || {}).forEach(schema => {
+        Object.entries(schema.properties || {}).forEach(([field, def]) => {
+          idx.fields.push(...tokenise(field));
+          idx.fields.push(...tokenise(def.description));
+        });
+      });
+    } else {
+      Object.entries(spec.data.channels || {}).forEach(([channel, channelObj]) => {
+        idx.paths.push(...tokenise(channel));
+        idx.paths.push(...tokenise(channelObj.description));
+        ['subscribe','publish'].forEach(dir => {
+          const op = channelObj[dir];
+          if (!op) return;
+          idx.operations.push(...tokenise(op.summary));
+          idx.operations.push(...tokenise(op.description));
+          (op.tags || []).forEach(t => idx.tags.push(...tokenise(t.name)));
+        });
+      });
+      Object.values(spec.data.components?.schemas || {}).forEach(schema => {
+        Object.entries(schema.properties || {}).forEach(([field, def]) => {
+          idx.fields.push(...tokenise(field));
+          idx.fields.push(...tokenise(def.description));
+        });
+      });
+    }
+
+    return idx;
+  }
+
+  function scoreSpec(idx, queryTokens) {
+    let score = 0;
+    const weights = { title: 10, description: 5, paths: 8, operations: 4, tags: 7, fields: 3 };
+
+    queryTokens.forEach(token => {
+      Object.entries(weights).forEach(([key, weight]) => {
+        const arr = idx[key];
+        const exactMatch = arr.includes(token);
+        const partialMatch = !exactMatch && arr.some(t => t.includes(token) || token.includes(t));
+        if (exactMatch) score += weight;
+        else if (partialMatch) score += weight * 0.5;
+      });
+    });
+
+    return score;
+  }
+
+  const INDICES = SPECS.map(spec => ({ spec, idx: buildIndex(spec) }));
+
+  function search(query, typeFilter) {
+    const tokens = tokenise(query);
+    if (!tokens.length) return [];
+
+    return INDICES
+      .filter(({ spec }) => typeFilter === 'all' || spec.type === typeFilter)
+      .map(({ spec, idx }) => ({ spec, score: scoreSpec(idx, tokens) }))
+      .filter(r => r.score > 0)
+      .sort((a, b) => b.score - a.score);
+  }
+
+  // ── AsyncAPI renderer ────────────────────────────────────────────────────────
+
+  function formatRetention(ms) {
+    if (!ms) return 'N/A';
+    const days = ms / 86400000;
+    if (days < 1) return `${ms / 3600000}h`;
+    if (days === 1) return '1 day';
+    return `${days} days`;
+  }
+
+  function renderSchema(schemaName, schema) {
+    const props = schema.properties || {};
+    const required = schema.required || [];
+    const rows = Object.entries(props).map(([field, def]) => {
+      const isRequired = required.includes(field);
+      const type = def.format ? `${def.type} (${def.format})` : def.type || '';
+      const enumVals = def.enum ? def.enum.map(e => `"${e}"`).join(' | ') : '';
+      return `
+        <tr>
+          <td><span class="field-name">${field}</span>${isRequired ? ' <span class="field-required">*</span>' : ''}</td>
+          <td><span class="field-type">${type}</span></td>
+          <td>
+            <div class="field-desc">${def.description || def.example !== undefined ? (def.description || '') + (def.example !== undefined ? ` <em>e.g. ${JSON.stringify(def.example)}</em>` : '') : '—'}</div>
+            ${enumVals ? `<div class="field-enum">${enumVals}</div>` : ''}
+          </td>
+        </tr>`;
+    }).join('');
+
+    return `
+      <div class="schema-block">
+        <div class="schema-header">Schema: ${schemaName}</div>
+        <table class="schema-table">
+          <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+  }
+
+  function renderAsyncAPI(spec) {
+    const d = spec.data;
+    const info = d.info || {};
+    const channels = d.channels || {};
+    const schemas = d.components?.schemas || {};
+    const bindings = d.bindings?.kafka || {};
+
+    const channelsHtml = Object.entries(channels).map(([name, ch]) => {
+      const ops = ['subscribe','publish'].filter(dir => ch[dir]);
+      const opsHtml = ops.map(dir => {
+        const op = ch[dir];
+        const tags = (op.tags || []).map(t => `<span class="op-tag">${t.name}</span>`).join('');
+        return `
+          <div class="operation-block">
+            <div class="operation-label op-${dir}">${dir === 'subscribe' ? '⬇ SUBSCRIBE' : '⬆ PUBLISH'}</div>
+            <div class="operation-summary">${op.summary || ''}</div>
+            ${op.description ? `<div class="operation-desc">${op.description}</div>` : ''}
+            ${tags ? `<div class="op-tags">${tags}</div>` : ''}
+          </div>`;
+      }).join('');
+
+      return `
+        <div class="channel-card">
+          <div class="channel-header">
+            <div class="channel-name">${name}</div>
+            ${ch.description ? `<div class="channel-desc">${ch.description}</div>` : ''}
+          </div>
+          ${opsHtml}
+        </div>`;
+    }).join('');
+
+    const schemasHtml = Object.entries(schemas).map(([name, s]) => renderSchema(name, s)).join('');
+
+    const kafkaHtml = Object.keys(bindings).length ? `
+      <div class="asyncapi-section-title" style="margin-top:20px;">Kafka Bindings</div>
+      <div class="kafka-bindings">
+        <div class="kafka-header">🗄 Kafka Topic Configuration</div>
+        <div class="kafka-body">
+          <div class="kafka-item"><div class="kafka-key">Topic Name</div><div class="kafka-val">${bindings.topic || '—'}</div></div>
+          <div class="kafka-item"><div class="kafka-key">Partitions</div><div class="kafka-val">${bindings.partitions || '—'}</div></div>
+          <div class="kafka-item"><div class="kafka-key">Replicas</div><div class="kafka-val">${bindings.replicas || '—'}</div></div>
+          <div class="kafka-item"><div class="kafka-key">Retention</div><div class="kafka-val">${formatRetention(bindings.retentionMs)}</div></div>
+        </div>
+      </div>` : '';
+
+    return `
+      <div class="asyncapi-view">
+        <div class="asyncapi-info">
+          <div class="version-line">AsyncAPI ${d.asyncapi} &nbsp;·&nbsp; Version ${info.version}</div>
+          <h2>${info.title}</h2>
+          <div class="desc">${info.description || ''}</div>
+          ${info.contact ? `<div class="contact">Contact: <a href="mailto:${info.contact.email}">${info.contact.email}</a></div>` : ''}
+        </div>
+
+        <div class="asyncapi-section-title">Channels</div>
+        ${channelsHtml}
+
+        ${kafkaHtml}
+
+        ${Object.keys(schemas).length ? `<div class="asyncapi-section-title" style="margin-top:20px;">Message Schemas</div>${schemasHtml}` : ''}
+      </div>`;
+  }
+
+  // ── UI state ────────────────────────────────────────────────────────────────
+
+  let activeFilter = 'all';
+  let activeSpecId = null;
+  let swaggerInstance = null;
+
+  function renderResults(results, query) {
+    const area = document.getElementById('resultsArea');
+
+    if (!query.trim()) {
+      area.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">💬</div>
+          <div class="empty-title">Search for a data service</div>
+          <div class="empty-sub">Describe what data you need in plain English — or try one of the examples above.</div>
+        </div>`;
+      return;
+    }
+
+    if (!results.length) {
+      area.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">🤷</div>
+          <div class="empty-title">No matching specs found</div>
+          <div class="empty-sub">Try different keywords or check the filter — the spec you need may not be loaded yet.</div>
+        </div>`;
+      return;
+    }
+
+    const maxScore = results[0].score;
+    area.innerHTML = `<div class="results-header">${results.length} result${results.length !== 1 ? 's' : ''} found</div>` +
+      results.map(({ spec, score }) => {
+        const pct = Math.round((score / maxScore) * 100);
+        const badgeCls = spec.type === 'openapi' ? 'badge-openapi' : 'badge-asyncapi';
+        const typeLabel = spec.type === 'openapi' ? 'OpenAPI' : 'AsyncAPI';
+        const info = spec.data.info;
+        const tags = spec.type === 'openapi'
+          ? (spec.data.tags || []).slice(0,3).map(t => `<span class="result-tag">${t.name}</span>`).join('')
+          : Object.values(spec.data.channels || {}).flatMap(ch =>
+              ['subscribe','publish'].flatMap(d => (ch[d]?.tags || []).map(t => t.name))
+            ).filter((v,i,a) => a.indexOf(v) === i).slice(0,3).map(t => `<span class="result-tag">${t}</span>`).join('');
+
+        return `
+          <div class="result-card ${spec.id === activeSpecId ? 'active' : ''}" data-id="${spec.id}">
+            <div class="result-card-top">
+              <span class="type-badge ${badgeCls}">${typeLabel}</span>
+              <div>
+                <div class="result-title">${info.title}</div>
+                <div class="result-version">v${info.version}</div>
+              </div>
+            </div>
+            <div class="result-desc">${info.description}</div>
+            <div class="result-footer">
+              <div class="result-tags">${tags}</div>
+              <span class="relevance">${pct}% match</span>
+            </div>
+          </div>`;
+      }).join('');
+
+    area.querySelectorAll('.result-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const spec = SPECS.find(s => s.id === card.dataset.id);
+        if (spec) openSpec(spec);
+      });
+    });
+  }
+
+  function openSpec(spec) {
+    activeSpecId = spec.id;
+
+    // Re-render results to update active state
+    document.querySelectorAll('.result-card').forEach(c => {
+      c.classList.toggle('active', c.dataset.id === spec.id);
+    });
+
+    document.getElementById('specPlaceholder').style.display = 'none';
+    const wrap = document.getElementById('specViewerWrap');
+    wrap.classList.add('visible');
+
+    const info = spec.data.info;
+    document.getElementById('specTitle').textContent = info.title;
+    document.getElementById('specVersion').textContent = `Version ${info.version}`;
+
+    const badge = document.getElementById('specBadge');
+    badge.innerHTML = spec.type === 'openapi'
+      ? '<span class="type-badge badge-openapi">OpenAPI</span>'
+      : '<span class="type-badge badge-asyncapi">AsyncAPI</span>';
+
+    const content = document.getElementById('specContent');
+    content.innerHTML = '<div class="loading"><div class="spinner"></div> Loading spec…</div>';
+
+    // Copy button
+    document.getElementById('copySpecBtn').onclick = () => {
+      navigator.clipboard.writeText(JSON.stringify(spec.data, null, 2));
+      const btn = document.getElementById('copySpecBtn');
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy JSON', 2000);
+    };
+
+    if (spec.type === 'openapi') {
+      content.innerHTML = '<div id="swagger-ui"></div>';
+      // Slight delay to let the DOM settle
+      requestAnimationFrame(() => {
+        SwaggerUIBundle({
+          spec: spec.data,
+          domNode: content.querySelector('#swagger-ui'),
+          presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset],
+          layout: 'BaseLayout',
+          deepLinking: false,
+          defaultModelsExpandDepth: 1,
+          defaultModelExpandDepth: 1,
+        });
+      });
+    } else {
+      content.innerHTML = renderAsyncAPI(spec);
+    }
+  }
+
+  // ── Event wiring ────────────────────────────────────────────────────────────
+
+  const searchInput = document.getElementById('searchInput');
+  const clearBtn = document.getElementById('clearBtn');
+  let searchTimeout;
+
+  function doSearch() {
+    const q = searchInput.value;
+    clearBtn.classList.toggle('visible', q.length > 0);
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      const results = search(q, activeFilter);
+      renderResults(results, q);
+    }, 200);
+  }
+
+  searchInput.addEventListener('input', doSearch);
+
+  clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    doSearch();
+    searchInput.focus();
+  });
+
+  // Example chips
+  document.querySelectorAll('.example-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      searchInput.value = chip.dataset.q;
+      doSearch();
+    });
+  });
+
+  // Filters
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeFilter = btn.dataset.filter;
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        b.className = 'filter-btn';
+        if (b.dataset.filter === activeFilter) {
+          b.classList.add(activeFilter === 'all' ? 'active-all' : activeFilter === 'openapi' ? 'active-openapi' : 'active-asyncapi');
+        }
+      });
+      doSearch();
+    });
+  });
+</script>
+</body>
+</html>
